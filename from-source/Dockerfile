@@ -19,7 +19,5 @@ RUN conda update -y -c conda-forge conda && \
     conda clean -tipsy
 
 RUN echo "conda activate ilastik" >> ~/.bashrc
-RUN echo "echo HELLOOOO" ?? ~/.bashrc
 
 WORKDIR "/ilastik/ilastik-meta/ilastik"
-ENTRYPOINT [ "/usr/bin/tini", "--" ]
