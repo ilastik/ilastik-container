@@ -1,3 +1,4 @@
+# ocker build --no-cache -t <dockerhub_user>/ilastik-from-source:<version> .
 FROM continuumio/miniconda3:latest
 
 MAINTAINER ilastik Team <team@ilastik.org>

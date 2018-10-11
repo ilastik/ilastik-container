@@ -5,10 +5,11 @@ ilastik docker container build by creating a ilastik development environment ins
 
 * specify `<dockerhub_user>`
 * specify `<version>`, e.g. `0.0.1a1`
+* `--no-cache` to make sure to always get the current packages
 
 
 ```bash
-docker build -t <dockerhub_user>/ilastik-from-source:<version> .
+docker build --no-cache -t <dockerhub_user>/ilastik-from-source:<version> .
 ```
 
 ## run
