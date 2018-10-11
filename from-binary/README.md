@@ -13,12 +13,23 @@ docker build --build-arg ilastik_binary=<ilastik-archive> -t <dockerhub_user>/il
 ## run
 
 * use `--init` to initialize with `tini`, just to be omn the safe side
+* in order to access project files and input data, locations of these files have to be mounted to the container.
+  E.g. one could have all input data (including the project) in `/some/input/folder` and would therefore add `-v /some/input/folder:/input`.
+  The docker container can read the contents of `/some/input/folder` in `/input`.
+* A folder has to be added for the outputs as well: `-v /some/output/folder:/output`.
+
 
 ```bash
 command="\
     ./run_ilastik.sh --headless \
-    --project=... \
-    "
-docker run -it --rm --init ilastik-docker-from-source:0.0.1a1 /bin/bash -c $command
+    --project=/input/<myproject.ilp> \
+    --raw_data=/input/<file_to_process.png>
+    --export_source=Probabilities \
+    --output-format=hdf5 \
+    --output_filename_format=/output/{nickname}_{result_type}.h5 \
+"
+
+```bash
+docker run -it --rm --init <dockerhub_user>/ilastik-from-source:<version> /bin/bash -c "$command"
     
 ```
