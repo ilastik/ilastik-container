@@ -2,7 +2,7 @@
 set -u
 set -e
 
-source scriptVars.sh
+source installationCommon.sh
 
 if [ -f $SINGULARITY_INSTALL_LOG_FILE ]; then
     INSTALLED_FILES="$(cat $SINGULARITY_INSTALL_LOG_FILE | grep INSTALL | grep -E -o '/[^ ]+')"

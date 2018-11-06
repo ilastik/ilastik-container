@@ -21,7 +21,7 @@ sudo apt-get update && sudo apt-get install -y \
 
 #This here is distro-agnostic. It's just the apt stuff that is not portable
 
-source scriptVars.sh
+source installationCommon.sh
 
 echo "~~>Installing go's dependency manager into $EFFECTIVE_GO_PATH"
 go get -u -v github.com/golang/dep/cmd/dep

@@ -3,7 +3,7 @@
 ILASTIK_DOCKER_IMAGE_VERSION=${ILASTIK_DOCKER_IMAGE_VERSION:-1.3.2b3}
 CONTAINER_NAME="ilastik-from-binary_${ILASTIK_DOCKER_IMAGE_VERSION}.sif"
 
-source scriptVars.sh
+source common.sh
 
 buildContainer(){
     rm -f $CONTAINER_NAME
