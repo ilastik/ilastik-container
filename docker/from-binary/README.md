@@ -18,8 +18,8 @@ docker build --build-arg ilastik_binary=<ilastik-archive> -t <dockerhub_user>/il
   The docker container can read the contents of `/some/input/folder` in `/input`.
 * A folder has to be added for the outputs as well: `-v /some/output/folder:/output`.
 
-
 ```bash
+# define the command
 command="\
     ./run_ilastik.sh --headless \
     --project=/input/<myproject.ilp> \
@@ -29,7 +29,10 @@ command="\
     --output_filename_format=/output/{nickname}_{result_type}.h5 \
 "
 
-```bash
-docker run -it --rm --init <dockerhub_user>/ilastik-from-source:<version> /bin/bash -c "$command"
-    
+# run the command in the ilastik docker container
+docker run -it --rm --init \
+    -v </absolute/path/to/input/folder>:/input \
+    -v </absolute/path/to/output/folder>:/output \
+    ilastik/ilastik-from-binary:<version> \
+    /bin/bash -c "$command"
 ```
