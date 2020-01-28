@@ -1,0 +1,37 @@
+#INSTALLING SINGULARITY
+
+If you already have singularity installed (possibly via conda), then skip to
+"RUNNING THE CONTAINER"
+
+If you don't have Singularity installed, run the installSingularity.sh
+script with CWD at the same directory in which the script resides:
+
+    $ ./installSingularity.sh
+
+or alternatively, follow the installation procedures described here:
+
+https://www.sylabs.io/guides/3.0/user-guide/quick_start.html#quick-installation-steps
+
+#RUNNING THE CONTAINER
+
+Singularity images can be easily built from Docker images, so we'll just use
+our Docker images unaltered.
+
+With Singularity installed, run
+
+    $ ./runIlastikInSingularity.sh
+
+to download the docker image and spawn a shell into the ilastik container.
+Singularity will automatically bind-mount your $HOME directory into your
+container so you can access you .ilp projects as well as your sample data files
+from within the host's HOME dir.
+
+#UNINSTALLING SINGULARITY
+
+If you've installed Singularity via the installSingularity.sh script, than
+you can uninstall it by running
+
+    $ ./uninstallSingularity.sh
+
+You can use the ILASTIK_DOCKER_IMAGE_VERSION env variable to choose the docker
+image version to be used as a basis for the container.
