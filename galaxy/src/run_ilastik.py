@@ -1,21 +1,32 @@
+"""
+Small helper tool to run ilastik with a configuration file
+"""
+from pathlib import Path
+
+
+class IlastikError(Exception):
+    pass
+
+
+class CMDPreconditionError(IlastikError):
+    pass
+
+
 def run_headless_pixel_classification(
-    testdir,
-    *,
-    num_distributed_workers: int = 0,
+    ilastik_exe: Path,
     project: Path,
     raw_data: Path,
     output_filename_format: str,
     input_axes: str = "",
     output_format: str = "hdf5",
-    ignore_training_axistags: bool = False,
 ):
-    assert project.exists()
-    assert raw_data.parent.exists()
+    if not project.exists():
+        raise CMDPreconditionError(f"Could not find project file {project}.")
+    if not raw_data.exists():
+        raise CMDPreconditionError(f"Could not find raw data file {raw_data}")
 
-    ilastik_dot_py = Path(__file__).parent.parent.parent.parent / "ilastik.py"
     subprocess_args = [
-        "python",
-        str(ilastik_dot_py),
+        ilastik_exe,
         "--headless",
         "--project=" + str(project),
         "--raw-data=" + str(raw_data),
@@ -26,16 +37,8 @@ def run_headless_pixel_classification(
     if input_axes:
         subprocess_args.append("--input-axes=" + input_axes)
 
-    if ignore_training_axistags:
-        subprocess_args.append("--ignore_training_axistags")
+    return subprocess_args
 
-    if num_distributed_workers:
-        os.environ["OMPI_ALLOW_RUN_AS_ROOT"] = "1"
-        os.environ["OMPI_ALLOW_RUN_AS_ROOT_CONFIRM"] = "1"
-        subprocess_args = ["mpiexec", "-n", str(num_distributed_workers)] + subprocess_args + ["--distributed"]
 
-    result = testdir.run(*subprocess_args)
-    if result.ret != 0:
-        raise FailedHeadlessExecutionException(
-            "===STDOUT===\n\n" + result.stdout.str() + "\n\n===STDERR===\n\n" + result.stderr.str()
-        )
+if __name__ == "__main__":
+    pass
