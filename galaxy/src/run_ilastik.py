@@ -3,7 +3,7 @@
 Small helper tool to run ilastik with a configuration file
 """
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 import json
 import logging
 import platform
@@ -38,7 +38,9 @@ class DefaultFromContextObj(click.Option):
         Can be used to with a pre-configured context object.
         See implementation of cli
         """
-        self.default = ctx.obj.get(self.name, None)
+        val = ctx.obj.get(self.name, None)
+        if val:
+            self.default = val
 
         return super().get_default(ctx)
 
@@ -53,10 +55,17 @@ def read_config(config_file: Path) -> Dict[str, str]:
         if config_file.suffix in [".json"]:
             opts = json.load(f)
         elif config_file.suffix in [".yaml", ".yml"]:
-            opts = yaml.safe_load(opts)
-        else:
-            raise CFGFileError("Supplied --config_file type not understood. Expected .yaml/.yml, or .json")
+            opts = yaml.safe_load(f)
     return opts
+
+
+def validate_config_file(ctx, param, value):
+    if value:
+        if value.suffix not in [".yaml", ".yml", ".json"]:
+            raise click.BadParameter(
+                "Supplied --config_file type not allowed. Expected .yaml/.yml, or .json"
+            )
+    return value
 
 
 @click.group()
@@ -70,31 +79,25 @@ def read_config(config_file: Path) -> Dict[str, str]:
     "--config_file",
     type=PathlibPath(exists=True),
     help="json/yaml config file with key-value pairs that match the commands options.",
+    callback=validate_config_file,
 )
 @click.pass_context
-def main(ctx, verbose, debug, config_file=None):
+def main(ctx, verbose=False, debug=False, config_file=None):
     """
     Run ilastik in headless mode with pre-trained projects
 
     see the subcommand --help for a list of options.
     Note, these options can be either defined via the respective command line option
-    (highest priority), an environment variable (COMMAND_LINE_OPTION_IN_UPPER-CASE),
-    or the config file.
+    (highest priority), or the config file.
     """
     if verbose:
         logger.setLevel(logging.DEBUG)
-    ctx.obj = {"debug": False}
+    ctx.obj = {"debug": debug}
     if config_file:
-        try:
-            config_options = read_config(config_file)
-        except CFGFileError as e:
-            raise click.BadParameter(e)
-
+        config_options = read_config(config_file)
         # ctx.obj is used to determine values for arguments supplied
         # in the config file
         ctx.obj.update(config_options)
-    if debug:
-        ctx.obj["debug"] = True
 
 
 _EXE_LOCATIONS = {
@@ -103,7 +106,12 @@ _EXE_LOCATIONS = {
     "Windows": '"C:\\Program Files\\ilastik-1.x.y-win64\\ilastik.exe"',
 }
 
-_EXE_MESSAGE = f"Path to ilastik executable, e.g. {_EXE_LOCATIONS.get(platform.system(), 'warning: no default location for system could be determined.')}"
+
+_EXE_MESSAGE = (
+    f"Path to ilastik executable, e.g. "
+    f"{_EXE_LOCATIONS.get(platform.system(), 'warning: no default location for system could be determined.')}"
+    f" Can also be set via environment variable ILASTIK_EXE."
+)
 
 
 @main.command("pixel_classification")
@@ -113,6 +121,7 @@ _EXE_MESSAGE = f"Path to ilastik executable, e.g. {_EXE_LOCATIONS.get(platform.s
     type=PathlibPath(exists=True),
     required=True,
     cls=DefaultFromContextObj,
+    envvar="ILASTIK_EXE",
 )
 @click.option(
     "--project", required=True, type=PathlibPath(exists=True), cls=DefaultFromContextObj
@@ -124,9 +133,13 @@ _EXE_MESSAGE = f"Path to ilastik executable, e.g. {_EXE_LOCATIONS.get(platform.s
     cls=DefaultFromContextObj,
 )
 @click.option("--output_filename_format", required=True, cls=DefaultFromContextObj)
-@click.option("--input_axes", required=False, cls=DefaultFromContextObj)
-@click.option("--output_filename_format", required=False, cls=DefaultFromContextObj)
-@click.option("--cutout_subregion", required=False, cls=DefaultFromContextObj)
+@click.option("--input_axes", required=False, default="", cls=DefaultFromContextObj)
+@click.option(
+    "--output_format", required=False, default="hdf5", cls=DefaultFromContextObj
+)
+@click.option(
+    "--cutout_subregion", required=False, default="", cls=DefaultFromContextObj
+)
 @click.pass_context
 def run_headless_pixel_classification(
     ctx,
@@ -134,9 +147,9 @@ def run_headless_pixel_classification(
     project: Path,
     raw_data: Path,
     output_filename_format: str,
-    input_axes: str = "",
-    output_format: str = "hdf5",
-    cutout_subregion: str = "",
+    input_axes: str,
+    output_format: str,
+    cutout_subregion: str,
 ):
     """
     Run ilastik pixel classification
