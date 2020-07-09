@@ -1,7 +1,9 @@
+#!/usr/bin/env python
 """
 Small helper tool to run ilastik with a configuration file
 """
 from pathlib import Path
+from typing import Dict
 import json
 import logging
 import platform
@@ -9,6 +11,7 @@ import subprocess
 import sys
 
 import click
+import yaml
 
 
 logging.basicConfig(stream=sys.stdout)
@@ -20,6 +23,10 @@ class IlastikError(Exception):
 
 
 class CMDPreconditionError(IlastikError):
+    pass
+
+
+class CFGFileError(IlastikError):
     pass
 
 
@@ -39,6 +46,17 @@ class DefaultFromContextObj(click.Option):
 class PathlibPath(click.Path):
     def convert(self, value, param, ctx):
         return Path(super().convert(value, param, ctx))
+
+
+def read_config(config_file: Path) -> Dict[str, str]:
+    with open(config_file, "r") as f:
+        if config_file.suffix in [".json"]:
+            opts = json.load(f)
+        elif config_file.suffix in [".yaml", ".yml"]:
+            opts = yaml.safe_load(opts)
+        else:
+            raise CFGFileError("Supplied --config_file type not understood. Expected .yaml/.yml, or .json")
+    return opts
 
 
 @click.group()
@@ -67,13 +85,16 @@ def main(ctx, verbose, debug, config_file=None):
         logger.setLevel(logging.DEBUG)
     ctx.obj = {"debug": False}
     if config_file:
-        with open(config_file, "r") as f:
-            opts = json.load(f)
-            # ctx.obj is used to determine values for arguments supplied
-            # in the config file
-            ctx.obj.update(opts)
+        try:
+            config_options = read_config(config_file)
+        except CFGFileError as e:
+            raise click.BadParameter(e)
+
+        # ctx.obj is used to determine values for arguments supplied
+        # in the config file
+        ctx.obj.update(config_options)
     if debug:
-        ctx["debug"] = True
+        ctx.obj["debug"] = True
 
 
 _EXE_LOCATIONS = {
