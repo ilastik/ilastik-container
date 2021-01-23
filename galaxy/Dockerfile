@@ -14,9 +14,13 @@ RUN mkdir /ilastik-release && \
 
 ENV ILASTIK_EXE /ilastik-release/run_ilastik.sh
 
+ENV HOME /tmp
+
 # install requirements for run_ilastik.py
 RUN pip install click pyyaml
 COPY ./src/run_ilastik.py /usr/local/bin
 
-ENTRYPOINT ["/usr/local/bin/run_ilastik.py"]
-CMD ["--help"]
+WORKDIR "/ilastik-release"
+
+# ENTRYPOINT ["/usr/local/bin/run_ilastik.py"]
+# CMD ["--help"]

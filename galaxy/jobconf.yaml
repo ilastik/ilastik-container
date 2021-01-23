@@ -1,0 +1,4 @@
+
+raw_data: /home/dkutra/data/2d_cells_apoptotic_1channel.png
+output_filename_format: /tmp/ilastik-out-{nickname}-{result_type}
+project: /home/dkutra/ilastik_projects/pc_versions/2dcellsapo_1.3.2-Linux.ilp
