@@ -63,15 +63,18 @@ docker run --rm -v /home/ilastik-user/input/:/input -v /home/ilastik-user/output
 
 ```bash
 planemo tool_init \
---force \
---id 'ilastik-headless' \
---name 'ilastik' \
---container ilastik/ilastik-galaxy:1.3.3post3 \
---example_command 'python /usr/local/bin/run_ilastik.py pixel_classification --project 2dcellsapo_1.3.2-Linux.ilp --raw_data 2d_cells_apoptotic_1channel.png --output_filename_format 2d_cells_apoptotic_1channel-Probabilities.h5' \
---example_input 2dcellsapo_1.3.2-Linux.ilp \
---example_input 2d_cells_apoptotic_1channel.png \
---example_output 2d_cells_apoptotic_1channel-Probabilities.h5 \
---test_case \
+    --force \
+    --id 'ilastik-headless' \
+    --name 'ilastik' \
+    --container ilastik/ilastik-galaxy:1.3.3post3 \
+    --example_command '
+        ln -s $input1 ${input1.element_identifier}.${input1.ext};
+        ln -s  $input2 ${input2.element_identifier}.${input2.ext};
+        python /usr/local/bin/run_ilastik.py pixel_classification --project 2dcellsapo_1.3.2-Linux.ilp --raw_data 2d_cells_apoptotic_1channel.png --output_filename_format 2d_cells_apoptotic_1channel-Probabilities.h5' \
+    --example_input 2dcellsapo_1.3.2-Linux.ilp \
+    --example_input 2d_cells_apoptotic_1channel.png \
+    --example_output 2d_cells_apoptotic_1channel-Probabilities.h5 \
+    --test_case \
 
 ```
 
