@@ -67,7 +67,7 @@ planemo tool_init \
 --id 'ilastik-headless' \
 --name 'ilastik' \
 --container ilastik/ilastik-galaxy:1.3.3post3 \
---example_command 'pixel_classification --project 2dcellsapo_1.3.2-Linux.ilp --raw_data 2d_cells_apoptotic_1channel.png --output_filename_format 2d_cells_apoptotic_1channel-Probabilities.h5' \
+--example_command 'python /usr/local/bin/run_ilastik.py pixel_classification --project 2dcellsapo_1.3.2-Linux.ilp --raw_data 2d_cells_apoptotic_1channel.png --output_filename_format 2d_cells_apoptotic_1channel-Probabilities.h5' \
 --example_input 2dcellsapo_1.3.2-Linux.ilp \
 --example_input 2d_cells_apoptotic_1channel.png \
 --example_output 2d_cells_apoptotic_1channel-Probabilities.h5 \
